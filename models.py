@@ -205,7 +205,7 @@ class BLSTMEncoder(nn.Module):
         embeddings = []
         for stidx in range(0, len(sentences), bsize):
             batch = Variable(self.get_batch(
-                        sentences[stidx:stidx + bsize]), volatile=True)
+                        sentences[stidx:stidx + bsize]), requires_grad=False)
             if self.is_cuda():
                 batch = batch.cuda()
             batch = self.forward(
@@ -235,7 +235,7 @@ class BLSTMEncoder(nn.Module):
             import warnings
             warnings.warn('No words in "{0}" have glove vectors. Replacing \
                            by "<s> </s>"..'.format(sent))
-        batch = Variable(self.get_batch(sent), volatile=True)
+        batch = Variable(self.get_batch(sent), requires_grad=False)
 
         if self.is_cuda():
             batch = batch.cuda()
