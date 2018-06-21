@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from random import randint
 import matplotlib
 
@@ -54,7 +55,7 @@ class InfersentEmbedding():
         start_time = time.time()
 
         GLOVE_PATH = self.glove_path
-        model = torch.load('encoder/infersent.allnli.pickle', map_location=lambda storage, loc: storage)
+        model = torch.load('InferSent/encoder/infersent.allnli.pickle', map_location=lambda storage, loc: storage)
         model.use_cuda = False
 
         model.set_glove_path(GLOVE_PATH)
@@ -65,40 +66,18 @@ class InfersentEmbedding():
             for line in f:
                 sentences.append(line.strip())
 
-        embeddings = model.encode(sentences, bsize=128, tokenize=False, verbose=True)
-        print('nb sentences encoded : {0}'.format(len(embeddings)))
-        print('')
-
+        self.embeddings = model.encode(sentences, bsize=128, tokenize=False, verbose=True)
+        print('nb sentences encoded : {0}'.format(len(self.embeddings)))
 
         elapsed_time = time.time() - start_time
-        print("Time elapsed: ",elapsed_time)
+        print("Time elapsed (embedding): ",elapsed_time)
 
         with open('samples_output.txt', 'w') as f:
-            for e in embeddings:
+            for e in self.embeddings:
                 f.write('['+' '.join(str(x) for x in e)+']')
                 f.write('\n')
 
-        pca = PCA(n_components=3)
-        principal_components=pca.fit_transform(embeddings)
-
-        with open('samples_output_pca3.txt', 'w') as f:
-            for pc in principal_components:
-                f.write('['+' '.join(str(x) for x in pc)+']')
-                f.write('\n')
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        for j,pc in enumerate(principal_components):
-            ax.scatter(pc[0],pc[1],pc[2],c='b',marker='o')
-            #ax.annotate('(%s,' %i, xy=(i,j))
-            annotate3D(ax, s=str(j+1), xyz=(pc[0],pc[1],pc[2]), fontsize=10, xytext=(-2,2),
-                       textcoords='offset points', ha='right',va='bottom')
-
-        ax.set_xlabel('X Label')
-        ax.set_ylabel('Y Label')
-        ax.set_zlabel('Z Label')
-
-        plt.show()
+        return self.embeddings
 
 #a=InfersentEmbedding(500000, 'dataset/GloVe/glove.840B.300d.txt', 'samples.txt')
 #a.infersent_embed()
